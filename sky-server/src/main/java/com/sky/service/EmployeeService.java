@@ -8,6 +8,8 @@ import com.sky.result.PageResult;
 
 public interface EmployeeService {
 
+    Employee GetById(Long id);
+
     /**
      * 员工登录
      * @param employeeLoginDTO
@@ -35,4 +37,6 @@ public interface EmployeeService {
      * @param id
      */
     void startOrStop(Integer status, Long id);
+
+    void update(EmployeeDTO employeeDTO);
 }
