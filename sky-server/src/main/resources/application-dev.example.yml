@@ -1,3 +1,4 @@
+# 根据实际情况修改配置信息
 sky:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -8,6 +9,6 @@ sky:
     password:
   alioss:
     endpoint: oss-cn-shenzhen.aliyuncs.com
-    access-key-id: LTAI5t8hpSQmb6HWuXr6CGNQ
-    access-key-secret: KppMWNQDDnYiB5K6Pjiqza9gaPfjPJ
-    bucket-name: sky-takeout-2025-07-24
+    access-key-id: {阿里云access-key-id}
+    access-key-secret: {阿里云access-key-secret}
+    bucket-name: {阿里云bucket-name }
