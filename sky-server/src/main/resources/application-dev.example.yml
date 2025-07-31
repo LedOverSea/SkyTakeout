@@ -12,3 +12,8 @@ sky:
     access-key-id: {阿里云access-key-id}
     access-key-secret: {阿里云access-key-secret}
     bucket-name: {阿里云bucket-name }
+  redis:
+    host: localhost
+    port: 6379
+    password: 123456
+    database: 10
