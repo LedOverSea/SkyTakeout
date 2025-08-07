@@ -25,6 +25,7 @@ import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
+import com.sky.websocket.WebSocketServer;
 import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 import net.bytebuddy.implementation.bytecode.Throw;
@@ -73,6 +74,8 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private WeChatPayUtil weChatPayUtil;
 
+    @Autowired
+    private WebSocketServer webSocketServer;
     /**
      * 用户下单
      * @param ordersSubmitDTO
@@ -175,6 +178,14 @@ public class OrderServiceImpl implements OrderService {
         log.info("调用updateStatus，用于替换微信支付更新数据库状态的问题");
         orderMapper.updateStatus(OrderStatus, OrderPaidStatus, check_out_time, orderNumber);
 
+        Map map = new HashMap();
+        map.put("type", 1);// 1来单提醒 2用户催单
+        map.put("orderId", orderMapper.getByNumber(orderNumber).getId());
+        map.put("content", "订单号:" + orderNumber);
+        String json = JSON.toJSONString(map);
+        webSocketServer.sendToAllClient(json);
+        System.out.println("已发送ws:"+json);
+
         return vo;
     }
 
@@ -198,6 +209,14 @@ public class OrderServiceImpl implements OrderService {
                 .build();
 
         orderMapper.update(orders);
+
+        Map map = new HashMap();
+        map.put("type", 1);// 1来单提醒 2用户催单
+        map.put("orderId", orders.getId());
+        map.put("content", "订单号:" + outTradeNo);
+        String json = JSON.toJSONString(map);
+        webSocketServer.sendToAllClient(json);
+        System.out.println("已发送ws:"+json);
     }
 
     /**
@@ -530,6 +549,27 @@ public class OrderServiceImpl implements OrderService {
         orders.setDeliveryTime(LocalDateTime.now());
 
         orderMapper.update(orders);
+    }
+
+    /**
+     * 用户催单
+     * @param id
+     */
+    public void reminder(Long id) {
+
+        // 根据id查询订单
+        Orders ordersDB = orderMapper.getById(id);
+
+        // 校验订单是否存在
+        if (ordersDB == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        Map map = new HashMap();
+        map.put("type", 2);// 1来单提醒 2用户催单
+        map.put("orderId", id);
+        map.put("content", "订单号:" + ordersDB.getNumber());
+        String json = JSON.toJSONString(map);
+        webSocketServer.sendToAllClient(json);
     }
 
     /**
